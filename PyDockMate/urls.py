@@ -18,11 +18,12 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import include, path
 
-from .views import AgentRegisterView, HostListView
+from .views import AgentHeartbeatView, AgentRegisterView, HostListView
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("api-auth/", include("rest_framework.urls", namespace="rest_framework")),
     path("api/agent/register", AgentRegisterView.as_view()),
+    path("api/agent/<uuid:agent_uuid>/heartbeat/", AgentHeartbeatView.as_view()),
     path("api/hosts/", HostListView.as_view()),
 ]

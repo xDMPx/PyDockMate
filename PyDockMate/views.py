@@ -19,6 +19,14 @@ class AgentRegisterView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+class AgentHeartbeatView(APIView):
+    def put(self, request, agent_uuid, format=None):
+        agent = get_object_or_404(Agent, uuid=agent_uuid)
+        agent.last_heartbeat = timezone.now()
+        agent.save(update_fields=["last_heartbeat"])
+        return Response(AgentSerializer(agent).data, status=status.HTTP_200_OK)
+
+
 class HostListView(ListAPIView):
     queryset = Host.objects.select_related("agent")
     serializer_class = HostWithAgentSerializer

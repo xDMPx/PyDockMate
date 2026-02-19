@@ -1,6 +1,7 @@
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from rest_framework import status
+from rest_framework.decorators import api_view
 from rest_framework.generics import CreateAPIView, ListAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -44,3 +45,8 @@ class HostContainersListView(ListAPIView):
     def get_queryset(self):
         host = get_object_or_404(Host, uuid=self.kwargs['host_uuid']) 
         return Container.objects.select_related("host").filter(host=host)
+
+@api_view(["GET"])
+def agent_host_uuid(request, agent_uuid):
+    agent = get_object_or_404(Agent.objects.select_related("host"), uuid=agent_uuid)
+    return Response({"host_uuid": agent.host.uuid})

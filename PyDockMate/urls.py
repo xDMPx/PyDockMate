@@ -18,7 +18,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import include, path
 
-from .views import AgentHeartbeatView, AgentRegisterView, HostListView
+from .views import AgentHeartbeatView, AgentRegisterView, ContainerRegisterView, HostContainersListView, HostListView
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -26,4 +26,6 @@ urlpatterns = [
     path("api/agent/register", AgentRegisterView.as_view()),
     path("api/agent/<uuid:agent_uuid>/heartbeat/", AgentHeartbeatView.as_view()),
     path("api/hosts/", HostListView.as_view()),
+    path("api/host/<uuid:host_uuid>/container/register", ContainerRegisterView.as_view()),
+    path("api/host/<uuid:host_uuid>/containers", HostContainersListView.as_view()),
 ]

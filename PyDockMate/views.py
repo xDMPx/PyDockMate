@@ -1,12 +1,12 @@
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from rest_framework import status
-from rest_framework.generics import ListAPIView
+from rest_framework.generics import CreateAPIView, ListAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import Agent, Host
-from .serializers import AgentSerializer, HostWithAgentSerializer
+from .models import Agent, Container, Host
+from .serializers import AgentSerializer, ContainerSerializer, HostWithAgentSerializer
 
 
 class AgentRegisterView(APIView):
@@ -30,3 +30,17 @@ class AgentHeartbeatView(APIView):
 class HostListView(ListAPIView):
     queryset = Host.objects.select_related("agent")
     serializer_class = HostWithAgentSerializer
+
+class ContainerRegisterView(CreateAPIView):
+    serializer_class = ContainerSerializer
+
+    def perform_create(self, serializer):
+        host = get_object_or_404(Host, uuid=self.kwargs['host_uuid']) 
+        serializer.save(host=host)
+
+class HostContainersListView(ListAPIView):
+    serializer_class = ContainerSerializer
+
+    def get_queryset(self):
+        host = get_object_or_404(Host, uuid=self.kwargs['host_uuid']) 
+        return Container.objects.select_related("host").filter(host=host)

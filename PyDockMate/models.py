@@ -19,3 +19,15 @@ class Agent(models.Model):
         Host,
         on_delete=models.CASCADE,
     )
+
+class Container(models.Model):
+    uuid = models.UUIDField(
+        default=uuid.uuid7, primary_key=True
+    )
+    id = models.CharField(max_length=64)
+    image = models.CharField()
+    command = models.CharField()
+    created = models.DateTimeField()
+    ports = models.CharField()
+    name = models.CharField()
+    host = models.ForeignKey(Host, on_delete=models.CASCADE) 

@@ -48,7 +48,7 @@ class HostContainersListView(ListAPIView):
 
 class ContainerDestroyView(DestroyAPIView):
     queryset = Container.objects.all()
-    serializer = ContainerSerializer
+    serializer_class  = ContainerSerializer
 
     def delete(self, request, *args, **kwargs):
         instance = self.get_object()

@@ -69,3 +69,9 @@ class ContainerSerializer(serializers.ModelSerializer):
         model = Container
         fields = ["uuid", "id", "image", "command", "created", "ports", "name", "host"]
         read_only_fields = ["uuid", "host"]
+
+class ContainerDestroySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Container
+        fields = '__all__'
+

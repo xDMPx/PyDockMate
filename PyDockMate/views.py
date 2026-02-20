@@ -2,7 +2,7 @@ from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from rest_framework import status
 from rest_framework.decorators import api_view
-from rest_framework.generics import CreateAPIView, ListAPIView
+from rest_framework.generics import CreateAPIView, DestroyAPIView, ListAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -36,15 +36,25 @@ class ContainerRegisterView(CreateAPIView):
     serializer_class = ContainerSerializer
 
     def perform_create(self, serializer):
-        host = get_object_or_404(Host, uuid=self.kwargs['host_uuid']) 
+        host = get_object_or_404(Host, uuid=self.kwargs["host_uuid"]) 
         serializer.save(host=host)
 
 class HostContainersListView(ListAPIView):
     serializer_class = ContainerSerializer
 
     def get_queryset(self):
-        host = get_object_or_404(Host, uuid=self.kwargs['host_uuid']) 
+        host = get_object_or_404(Host, uuid=self.kwargs["host_uuid"]) 
         return Container.objects.select_related("host").filter(host=host)
+
+class ContainerDestroyView(DestroyAPIView):
+    queryset = Container.objects.all()
+    serializer = ContainerSerializer
+
+    def delete(self, request, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data, status=status.HTTP_204_NO_CONTENT)
 
 @api_view(["GET"])
 def agent_host_uuid(request, agent_uuid):

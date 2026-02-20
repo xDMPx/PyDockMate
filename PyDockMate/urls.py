@@ -21,6 +21,7 @@ from django.urls import include, path
 from .views import (
     AgentHeartbeatView,
     AgentRegisterView,
+    ContainerDestroyView,
     ContainerRegisterView,
     HostContainersListView,
     HostListView,
@@ -35,5 +36,6 @@ urlpatterns = [
     path("api/agent/<uuid:agent_uuid>/host", agent_host_uuid),
     path("api/hosts/", HostListView.as_view()),
     path("api/host/<uuid:host_uuid>/container/register", ContainerRegisterView.as_view()),
+    path("api/host/<uuid:host_uuid>/container/<uuid:pk>/destroy", ContainerDestroyView.as_view()),
     path("api/host/<uuid:host_uuid>/containers", HostContainersListView.as_view()),
 ]

@@ -16,8 +16,13 @@ class HostWithAgentSerializer(serializers.ModelSerializer):
             model = Agent
             fields = ["version", "last_heartbeat"]
             read_only_fields = ["version", "last_heartbeat"]
+    class ContainerSerializer(serializers.ModelSerializer):
+        class Meta:
+            model = Container 
+            fields = "__all__"
 
     agent = AgentSerializer()
+    containers = ContainerSerializer(many=True, source="container_set")
 
     class Meta:
         model = Host
@@ -27,6 +32,7 @@ class HostWithAgentSerializer(serializers.ModelSerializer):
             "os",
             "docker_version",
             "agent",
+            "containers"
         ]
         read_only_fields = [
             "uuid",
@@ -34,6 +40,7 @@ class HostWithAgentSerializer(serializers.ModelSerializer):
             "os",
             "docker_version",
             "agent",
+            "containers"
         ]
 
 

@@ -29,7 +29,7 @@ class AgentHeartbeatView(APIView):
 
 
 class HostListView(ListAPIView):
-    queryset = Host.objects.select_related("agent")
+    queryset = Host.objects.select_related("agent").prefetch_related("container_set")
     serializer_class = HostWithAgentSerializer
 
 class ContainerRegisterView(CreateAPIView):

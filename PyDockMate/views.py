@@ -54,7 +54,7 @@ class ContainerDestroyView(DestroyAPIView):
         instance = self.get_object()
         self.perform_destroy(instance)
         serializer = self.get_serializer(instance)
-        return Response(serializer.data, status=status.HTTP_204_NO_CONTENT)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 @api_view(["GET"])
 def agent_host_uuid(request, agent_uuid):

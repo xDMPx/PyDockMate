@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Agent, Container, Host
+from .models import Agent, Container, ContainerStat, Host
 
 
 class HostSerializer(serializers.ModelSerializer):
@@ -17,9 +17,16 @@ class HostWithAgentSerializer(serializers.ModelSerializer):
             fields = ["version", "last_heartbeat"]
             read_only_fields = ["version", "last_heartbeat"]
     class ContainerSerializer(serializers.ModelSerializer):
+        class ContainerStatSerializer(serializers.ModelSerializer):
+            class Meta:
+                model = ContainerStat
+                fields = ["status", "timestamp"]
+        stats = ContainerStatSerializer(many=True, source="containerstat_set")
+
         class Meta:
             model = Container 
             fields = "__all__"
+       
 
     agent = AgentSerializer()
     containers = ContainerSerializer(many=True, source="container_set")

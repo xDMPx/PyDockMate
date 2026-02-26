@@ -30,4 +30,21 @@ class Container(models.Model):
     created = models.DateTimeField()
     ports = models.CharField()
     name = models.CharField()
-    host = models.ForeignKey(Host, on_delete=models.CASCADE) 
+    host = models.ForeignKey(Host, on_delete=models.CASCADE)
+
+class ContainerStat(models.Model):
+    status = models.CharField()
+    timestamp = models.DateTimeField()
+    container = models.ForeignKey(Container, on_delete=models.CASCADE)
+
+    class Meta:
+        ordering = ['-timestamp']
+        indexes = [
+            models.Index(fields=['container', 'timestamp'], name='container_timestamp_index')
+        ]
+        constraints = [
+            models.UniqueConstraint(
+                fields=['container', 'timestamp'],
+                name='unique_container_timestamp'
+            )
+        ]

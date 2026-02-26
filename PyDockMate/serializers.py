@@ -16,17 +16,18 @@ class HostWithAgentSerializer(serializers.ModelSerializer):
             model = Agent
             fields = ["version", "last_heartbeat"]
             read_only_fields = ["version", "last_heartbeat"]
+
     class ContainerSerializer(serializers.ModelSerializer):
         class ContainerStatSerializer(serializers.ModelSerializer):
             class Meta:
                 model = ContainerStat
                 fields = ["status", "timestamp"]
-        stats = ContainerStatSerializer(many=True, source="containerstat_set")
+
+        last_stat = ContainerStatSerializer()
 
         class Meta:
-            model = Container 
+            model = Container
             fields = "__all__"
-       
 
     agent = AgentSerializer()
     containers = ContainerSerializer(many=True, source="container_set")
@@ -84,8 +85,8 @@ class ContainerSerializer(serializers.ModelSerializer):
         fields = ["uuid", "id", "image", "command", "created", "ports", "name", "host"]
         read_only_fields = ["uuid", "host"]
 
+
 class ContainerDestroySerializer(serializers.ModelSerializer):
     class Meta:
         model = Container
         fields = '__all__'
-

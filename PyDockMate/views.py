@@ -1,3 +1,6 @@
+from django.db.models import OuterRef, Prefetch
+from django.db.models.expressions import Subquery
+from django.db.models.functions import JSONObject
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from rest_framework import status
@@ -6,7 +9,7 @@ from rest_framework.generics import CreateAPIView, DestroyAPIView, ListAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import Agent, Container, Host
+from .models import Agent, Container, ContainerStat, Host
 from .serializers import AgentSerializer, ContainerSerializer, HostWithAgentSerializer
 
 
@@ -29,7 +32,12 @@ class AgentHeartbeatView(APIView):
 
 
 class HostListView(ListAPIView):
-    queryset = Host.objects.select_related("agent").prefetch_related("container_set")
+    queryset = Host.objects.select_related("agent").prefetch_related(
+        Prefetch("container_set",
+                 queryset=Container.objects.all().annotate(
+                     last_stat=Subquery(ContainerStat.objects.filter(container=OuterRef("pk"))[:1]
+                     .values(data=JSONObject(status="status", timestamp="timestamp")))
+                 )))
     serializer_class = HostWithAgentSerializer
 
 class ContainerRegisterView(CreateAPIView):

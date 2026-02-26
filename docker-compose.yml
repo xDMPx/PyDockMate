@@ -1,0 +1,7 @@
+services:
+  pydockmate:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./pydockmate-data:/var/www/PyDockMate/pydockmate-data

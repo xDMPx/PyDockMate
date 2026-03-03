@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from datetime import datetime
+from django.db import IntegrityError
 from django.utils import timezone
 from decimal import Decimal
 import json
@@ -49,13 +50,17 @@ async def consumer(stream_name: str):
             container_stat = parse_container_stat_json(json.loads(msg_str))
             container = await ContainerModel.objects.aget(uuid=container_stat.container_uuid)
             stat = ContainerStatModel(status=container_stat.status, timestamp=timezone.make_aware(datetime.fromtimestamp(container_stat.timestamp)), container=container)
-            await stat.asave()
+            try:
+                await stat.asave()
+            except IntegrityError as e:
+                print("skipped")
+                pass
 
         await consumer.start()
         await consumer.subscribe(
             stream=stream_name,
             callback=on_message,
-            offset_specification=ConsumerOffsetSpecification(OffsetType.LAST, None),
+            offset_specification=ConsumerOffsetSpecification(OffsetType.FIRST, None),
         )
         await consumer.run()
 
@@ -67,5 +72,6 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         hosts_uuid = Host.objects.values_list("uuid", flat=True)
         uuids: list[UUID] = [uuid for uuid in hosts_uuid]
+        print(f"hosts: {uuids}")
         with asyncio.Runner() as runner:
             runner.run(main(uuids))

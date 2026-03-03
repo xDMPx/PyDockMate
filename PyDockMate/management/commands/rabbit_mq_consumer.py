@@ -18,6 +18,7 @@ from rstream import (
     Consumer,
     ConsumerOffsetSpecification,
     MessageContext,
+    OffsetNotFound,
     OffsetType,
 )
 # 5GB
@@ -55,12 +56,23 @@ async def consumer(stream_name: str):
             except IntegrityError as e:
                 print("skipped")
                 pass
+            offset = message_context.offset
+            if message_context.subscriber_name is not None:
+                await consumer.store_offset(stream=stream_name,offset=offset,subscriber_name=message_context.subscriber_name)
+
+        stored_offset = 0
+        try:
+            stored_offset = await consumer.query_offset(stream=stream_name, subscriber_name="subscriber_1")
+            print(f"Reusing offset: {stored_offset}")
+        except OffsetNotFound as offset_exception:
+            print(f"Offset not previously stored. {offset_exception}")
 
         await consumer.start()
         await consumer.subscribe(
             stream=stream_name,
+            subscriber_name="subscriber_1",
             callback=on_message,
-            offset_specification=ConsumerOffsetSpecification(OffsetType.FIRST, None),
+            offset_specification=ConsumerOffsetSpecification(OffsetType.OFFSET, stored_offset),
         )
         await consumer.run()
 

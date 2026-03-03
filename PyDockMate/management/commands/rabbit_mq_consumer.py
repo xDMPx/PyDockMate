@@ -9,6 +9,8 @@ from PyDockMate.models import Host
 from PyDockMate.models import ContainerStat as ContainerStatModel
 from PyDockMate.models import Container as ContainerModel
 import asyncio
+from dotenv import load_dotenv
+import os
 
 from rstream import (
     AMQPMessage,
@@ -19,6 +21,10 @@ from rstream import (
 )
 # 5GB
 STREAM_RETENTION = 5000000000
+load_dotenv(".env")
+RABBITMQ_HOST = os.getenv("RABBITMQ_HOST", "localhost")
+RABBITMQ_USERNAME = os.getenv("RABBITMQ_USERNAME", "admin")
+RABBITMQ_PASSWORD = os.getenv("RABBITMQ_PASSWORD", "password")
 
 @dataclass
 class ContainerStat:
@@ -34,7 +40,7 @@ def parse_container_stat_json(json: dict[str,str]) -> ContainerStat:
     ) 
 
 async def consumer(stream_name: str):
-    async with Consumer(host="localhost", username="admin", password="password") as consumer:
+    async with Consumer(host=RABBITMQ_HOST, username=RABBITMQ_USERNAME, password=RABBITMQ_PASSWORD) as consumer:
         await consumer.create_stream(stream_name, exists_ok=True, arguments={"max-length-bytes": STREAM_RETENTION})
 
         async def on_message(msg: AMQPMessage, message_context: MessageContext):

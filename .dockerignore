@@ -208,6 +208,7 @@ __marimo__/
 # Docker
 Dockerfile
 docker-compose.yml
+Dockerfile.consumer
 
 # RabbitMQ
 rabbitmq_data

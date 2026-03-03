@@ -5,7 +5,8 @@ WORKDIR /var/www/PyDockMate
 COPY . .
 RUN mkdir -p /var/www/PyDockMate/pydockmate-data
 
+RUN apt-get update
+RUN apt-get install socat -y
 RUN pip install -r requirements.txt  
-RUN python manage.py migrate
 
-CMD ["python", "-u", "manage.py", "runserver", "0.0.0.0:8000"]
+CMD ["/bin/sh", "-c", "socat TCP-LISTEN:5552,reuseaddr,fork TCP:rabbitmq:5552 & python -u manage.py rabbit_mq_consumer"]

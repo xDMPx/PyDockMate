@@ -5,6 +5,18 @@ services:
       - "8000:8000"
     volumes:
       - ./pydockmate-data:/var/www/PyDockMate/pydockmate-data
+  pydockmate-consumer:
+    build:
+      dockerfile: ./Dockerfile.consumer
+    environment:
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_USERNAME: admin
+      RABBITMQ_PASSWORD: password 
+    volumes:
+      - ./pydockmate-data:/var/www/PyDockMate/pydockmate-data
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
   rabbitmq:
     image: rabbitmq:4-management
     ports:
@@ -19,3 +31,9 @@ services:
       - ./rabbitmq_data:/var/lib/rabbitmq
       - ./rabbitmq_log:/var/log/rabbitmq
       - ./enabled_plugins:/etc/rabbitmq/enabled_plugins
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 10s

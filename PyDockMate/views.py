@@ -10,7 +10,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .models import Agent, Container, ContainerStat, Host
-from .serializers import AgentSerializer, ContainerSerializer, HostWithAgentSerializer
+from .serializers import AgentSerializer, ContainerSerializer, ContainerStatSerializer, HostWithAgentSerializer
 
 
 class AgentRegisterView(APIView):
@@ -30,7 +30,6 @@ class AgentHeartbeatView(APIView):
         agent.save(update_fields=["last_heartbeat"])
         return Response(AgentSerializer(agent).data, status=status.HTTP_200_OK)
 
-
 class HostListView(ListAPIView):
     queryset = Host.objects.select_related("agent").prefetch_related(
         Prefetch("container_set",
@@ -46,6 +45,13 @@ class ContainerRegisterView(CreateAPIView):
     def perform_create(self, serializer):
         host = get_object_or_404(Host, uuid=self.kwargs["host_uuid"]) 
         serializer.save(host=host)
+
+class ContainerStatsListView(ListAPIView):
+    serializer_class = ContainerStatSerializer
+
+    def get_queryset(self):
+        container = get_object_or_404(Container, uuid=self.kwargs["pk"])
+        return ContainerStat.objects.all().filter(container=container)
 
 class HostContainersListView(ListAPIView):
     serializer_class = ContainerSerializer

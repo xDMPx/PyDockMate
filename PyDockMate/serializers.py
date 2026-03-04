@@ -90,3 +90,8 @@ class ContainerDestroySerializer(serializers.ModelSerializer):
     class Meta:
         model = Container
         fields = '__all__'
+
+class ContainerStatSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ContainerStat
+        fields = ["status", "timestamp"]

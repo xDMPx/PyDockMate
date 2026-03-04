@@ -22,6 +22,7 @@ from .views import (
     AgentHeartbeatView,
     AgentRegisterView,
     ContainerDestroyView,
+    ContainerStatsListView,
     ContainerRegisterView,
     HostContainersListView,
     HostListView,
@@ -37,5 +38,6 @@ urlpatterns = [
     path("api/hosts/", HostListView.as_view()),
     path("api/host/<uuid:host_uuid>/container/register", ContainerRegisterView.as_view()),
     path("api/host/<uuid:host_uuid>/container/<uuid:pk>/destroy", ContainerDestroyView.as_view()),
+    path("api/container/<uuid:pk>/stats", ContainerStatsListView.as_view()),
     path("api/host/<uuid:host_uuid>/containers", HostContainersListView.as_view()),
 ]

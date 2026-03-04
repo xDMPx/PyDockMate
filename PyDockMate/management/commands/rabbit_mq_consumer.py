@@ -32,12 +32,14 @@ RABBITMQ_PASSWORD = os.getenv("RABBITMQ_PASSWORD", "password")
 class ContainerStat:
     container_uuid: str
     status: str
+    cpu: float
     timestamp: float
 
 def parse_container_stat_json(json: dict[str,str]) -> ContainerStat:
     return ContainerStat(
         container_uuid = json["container_uuid"],
         status = json["status"],
+        cpu = float(json["cpu"]),
         timestamp = float(Decimal(json["timestamp"])),
     ) 
 
@@ -50,7 +52,7 @@ async def consumer(stream_name: str):
             msg_str = msg.__bytes__().decode()
             container_stat = parse_container_stat_json(json.loads(msg_str))
             container = await ContainerModel.objects.aget(uuid=container_stat.container_uuid)
-            stat = ContainerStatModel(status=container_stat.status, timestamp=timezone.make_aware(datetime.fromtimestamp(container_stat.timestamp)), container=container)
+            stat = ContainerStatModel(status=container_stat.status, cpu=container_stat.cpu, timestamp=timezone.make_aware(datetime.fromtimestamp(container_stat.timestamp)), container=container)
             try:
                 await stat.asave()
             except IntegrityError as e:

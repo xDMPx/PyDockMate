@@ -35,7 +35,7 @@ class HostListView(ListAPIView):
         Prefetch("container_set",
                  queryset=Container.objects.all().annotate(
                      last_stat=Subquery(ContainerStat.objects.filter(container=OuterRef("pk"))[:1]
-                     .values(data=JSONObject(status="status", timestamp="timestamp")))
+                     .values(data=JSONObject(status="status", cpu="cpu", timestamp="timestamp")))
                  )))
     serializer_class = HostWithAgentSerializer
 

@@ -1,4 +1,4 @@
-FROM python:3.14
+FROM python:3.14-slim
 
 ENV PIP_ROOT_USER_ACTION=ignore
 WORKDIR /var/www/PyDockMate

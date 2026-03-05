@@ -27,10 +27,12 @@ from .views import (
     HostContainersListView,
     HostListView,
     agent_host_uuid,
+    ping,
 )
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path("api/ping", ping),
     path("api-auth/", include("rest_framework.urls", namespace="rest_framework")),
     path("api/agent/register", AgentRegisterView.as_view()),
     path("api/agent/<uuid:agent_uuid>/heartbeat/", AgentHeartbeatView.as_view()),

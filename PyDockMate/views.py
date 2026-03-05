@@ -74,3 +74,7 @@ class ContainerDestroyView(DestroyAPIView):
 def agent_host_uuid(request, agent_uuid):
     agent = get_object_or_404(Agent.objects.select_related("host"), uuid=agent_uuid)
     return Response({"host_uuid": agent.host.uuid})
+
+@api_view(["GET"])
+def ping(request):
+    return Response({"message": "pong"})

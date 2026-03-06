@@ -33,6 +33,7 @@ class ContainerStat:
     container_uuid: str
     status: str
     cpu: float
+    memory: float
     timestamp: float
 
 def parse_container_stat_json(json: dict[str,str]) -> ContainerStat:
@@ -40,6 +41,7 @@ def parse_container_stat_json(json: dict[str,str]) -> ContainerStat:
         container_uuid = json["container_uuid"],
         status = json["status"],
         cpu = float(json["cpu"]),
+        memory = float(json["memory"]),
         timestamp = float(Decimal(json["timestamp"])),
     ) 
 
@@ -52,7 +54,7 @@ async def consumer(stream_name: str):
             msg_str = msg.__bytes__().decode()
             container_stat = parse_container_stat_json(json.loads(msg_str))
             container = await ContainerModel.objects.aget(uuid=container_stat.container_uuid)
-            stat = ContainerStatModel(status=container_stat.status, cpu=container_stat.cpu, timestamp=timezone.make_aware(datetime.fromtimestamp(container_stat.timestamp)), container=container)
+            stat = ContainerStatModel(status=container_stat.status, cpu=container_stat.cpu, memory=container_stat.memory, timestamp=timezone.make_aware(datetime.fromtimestamp(container_stat.timestamp)), container=container)
             try:
                 await stat.asave()
             except IntegrityError as e:

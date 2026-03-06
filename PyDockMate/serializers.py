@@ -21,7 +21,7 @@ class HostWithAgentSerializer(serializers.ModelSerializer):
         class ContainerStatSerializer(serializers.ModelSerializer):
             class Meta:
                 model = ContainerStat
-                fields = ["status", "cpu", "timestamp"]
+                fields = ["status", "cpu", "memory", "timestamp"]
 
         last_stat = ContainerStatSerializer()
 
@@ -94,4 +94,4 @@ class ContainerDestroySerializer(serializers.ModelSerializer):
 class ContainerStatSerializer(serializers.ModelSerializer):
     class Meta:
         model = ContainerStat
-        fields = ["status", "cpu", "timestamp"]
+        fields = ["status", "cpu", "memory", "timestamp"]

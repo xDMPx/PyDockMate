@@ -1,3 +1,4 @@
+from asyncio.tasks import Task
 from dataclasses import dataclass
 from datetime import datetime
 from django.db import IntegrityError
@@ -86,9 +87,25 @@ async def consumer(stream_name: str):
         )
         await consumer.run()
 
+async def get_hosts_uuid() -> list[UUID]:
+    hosts_uuid = [uuid async for uuid in Host.objects.values_list("uuid", flat=True)]
+    return list(hosts_uuid)
+
+async def update_hosts(uuids: list[UUID], consumer_tasks: list[Task[None]]):
+    while True:
+        db_uuids: list[UUID] = await get_hosts_uuid()
+        for uuid in db_uuids:
+            if uuid in uuids: continue
+            print(f"Detected new host {uuid}. Starting consumer.")
+            uuids.append(uuid)
+            consumer_task = asyncio.create_task(consumer(str(uuid)))
+            consumer_tasks.append(consumer_task)
+        await asyncio.sleep(30)
+
+
 async def main(uuids: list[UUID]):
-    consumer_tasks = [consumer(str(uuid)) for uuid in uuids]
-    await asyncio.gather(*consumer_tasks)
+    consumer_tasks = [asyncio.create_task(consumer(str(uuid))) for uuid in uuids]
+    await asyncio.gather(*consumer_tasks, asyncio.create_task(update_hosts(uuids, consumer_tasks)))
 
 class Command(BaseCommand):
     def handle(self, *args, **options):

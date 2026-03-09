@@ -87,9 +87,9 @@ async def consumer(stream_name: str):
         await consumer.run()
 
 async def main(uuids: list[UUID]):
-    for uuid in uuids:
-        await consumer(str(uuid))
-        
+    consumer_tasks = [consumer(str(uuid)) for uuid in uuids]
+    await asyncio.gather(*consumer_tasks)
+
 class Command(BaseCommand):
     def handle(self, *args, **options):
         hosts_uuid = Host.objects.values_list("uuid", flat=True)

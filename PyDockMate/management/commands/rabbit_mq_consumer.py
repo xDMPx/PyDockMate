@@ -32,16 +32,22 @@ RABBITMQ_PASSWORD = os.getenv("RABBITMQ_PASSWORD", "password")
 class ContainerStat:
     container_uuid: str
     status: str
-    cpu: float
-    memory: float
+    cpu: float | None
+    memory: float | None
     timestamp: float
 
 def parse_container_stat_json(json: dict[str,str]) -> ContainerStat:
+    cpu = None
+    memory = None
+    try:
+        cpu = float(json["cpu"])
+        memory = float(json["memory"])
+    except: pass
     return ContainerStat(
         container_uuid = json["container_uuid"],
         status = json["status"],
-        cpu = float(json["cpu"]),
-        memory = float(json["memory"]),
+        cpu = cpu,
+        memory = memory,
         timestamp = float(Decimal(json["timestamp"])),
     ) 
 

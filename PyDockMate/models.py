@@ -36,6 +36,7 @@ class ContainerStat(models.Model):
     status = models.CharField()
     cpu = models.FloatField(null=True)
     memory = models.FloatField(null=True)
+    network_rx_bytes = models.IntegerField(null=True)
     timestamp = models.DateTimeField()
     container = models.ForeignKey(Container, on_delete=models.CASCADE)
 

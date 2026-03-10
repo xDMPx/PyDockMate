@@ -36,16 +36,19 @@ class ContainerStat:
     cpu: float | None
     memory: float | None
     network_rx_bytes: int | None
+    network_tx_bytes: int | None
     timestamp: float
 
 def parse_container_stat_json(json: dict[str,str]) -> ContainerStat:
     cpu = None
     memory = None
     network_rx_bytes = None
+    network_tx_bytes = None
     try:
         cpu = float(json["cpu"])
         memory = float(json["memory"])
         network_rx_bytes = int(json["network_rx_bytes"])
+        network_tx_bytes = int(json["network_tx_bytes"])
     except: pass
     return ContainerStat(
         container_uuid = json["container_uuid"],
@@ -53,6 +56,7 @@ def parse_container_stat_json(json: dict[str,str]) -> ContainerStat:
         cpu = cpu,
         memory = memory,
         network_rx_bytes = network_rx_bytes,
+        network_tx_bytes = network_tx_bytes,
         timestamp = float(Decimal(json["timestamp"])),
     ) 
 
@@ -65,7 +69,8 @@ async def consumer(stream_name: str):
             msg_str = msg.__bytes__().decode()
             container_stat = parse_container_stat_json(json.loads(msg_str))
             container = await ContainerModel.objects.aget(uuid=container_stat.container_uuid)
-            stat = ContainerStatModel(status=container_stat.status, cpu=container_stat.cpu, memory=container_stat.memory, network_rx_bytes=container_stat.network_rx_bytes,
+            stat = ContainerStatModel(status=container_stat.status, cpu=container_stat.cpu, memory=container_stat.memory,
+                                      network_rx_bytes=container_stat.network_rx_bytes, network_tx_bytes=container_stat.network_tx_bytes,
                                       timestamp=timezone.make_aware(datetime.fromtimestamp(container_stat.timestamp)), container=container)
             try:
                 await stat.asave()

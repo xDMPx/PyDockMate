@@ -36,7 +36,8 @@ class HostListView(ListAPIView):
                  queryset=Container.objects.all().annotate(
                      last_stat=Subquery(ContainerStat.objects.filter(container=OuterRef("pk"))[:1]
                      .values(data=JSONObject(status="status", cpu="cpu", memory="memory",
-                                             network_rx_bytes="network_rx_bytes", timestamp="timestamp")))
+                                             network_rx_bytes="network_rx_bytes", network_tx_bytes="network_tx_bytes",
+                                             timestamp="timestamp")))
                  )))
     serializer_class = HostWithAgentSerializer
 
